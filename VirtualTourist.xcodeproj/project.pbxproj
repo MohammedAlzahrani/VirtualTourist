@@ -17,6 +17,7 @@
 		CD0AB1E3220E2736005EB75B /* PhotosCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD0AB1E2220E2736005EB75B /* PhotosCollectionViewCell.swift */; };
 		CD0AB1E5220E28CF005EB75B /* APIConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD0AB1E4220E28CF005EB75B /* APIConstants.swift */; };
 		CD0AB1E8220E4C04005EB75B /* VirtualTourist.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = CD0AB1E6220E4C04005EB75B /* VirtualTourist.xcdatamodeld */; };
+		CD0AB1EA220E5338005EB75B /* DataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD0AB1E9220E5338005EB75B /* DataController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -33,6 +34,7 @@
 		CD0AB1E2220E2736005EB75B /* PhotosCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotosCollectionViewCell.swift; sourceTree = "<group>"; };
 		CD0AB1E4220E28CF005EB75B /* APIConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIConstants.swift; sourceTree = "<group>"; };
 		CD0AB1E7220E4C04005EB75B /* VirtualTourist.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = VirtualTourist.xcdatamodel; sourceTree = "<group>"; };
+		CD0AB1E9220E5338005EB75B /* DataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataController.swift; sourceTree = "<group>"; };
 		CEAEC1908A2E89CCB8EA8555 /* Pods_VirtualTourist.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_VirtualTourist.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -94,6 +96,7 @@
 			isa = PBXGroup;
 			children = (
 				CD0AB1E6220E4C04005EB75B /* VirtualTourist.xcdatamodeld */,
+				CD0AB1E9220E5338005EB75B /* DataController.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -252,6 +255,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CD0AB1EA220E5338005EB75B /* DataController.swift in Sources */,
 				CD0AB1E1220E244C005EB75B /* PhotosCollectionViewController.swift in Sources */,
 				CD0AB1E5220E28CF005EB75B /* APIConstants.swift in Sources */,
 				CD0AB1E8220E4C04005EB75B /* VirtualTourist.xcdatamodeld in Sources */,
