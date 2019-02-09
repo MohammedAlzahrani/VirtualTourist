@@ -28,6 +28,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
             locations = result
             loadLocations()
         }
+
     }
     @objc func longPress(longPressRecognizer: UILongPressGestureRecognizer){
         if longPressRecognizer.state == UIGestureRecognizer.State.ended{
@@ -64,6 +65,32 @@ class MapViewController: UIViewController, MKMapViewDelegate {
             annotations.append(annotation)
         }
         mapView.addAnnotations(annotations)
+    }
+    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+        // creating and deleting new
+//        let locationToDelete = Location(context: dataController.viewContext)
+//        locationToDelete.lat = (view.annotation?.coordinate.latitude)!
+//        locationToDelete.lon = (view.annotation?.coordinate.longitude)!
+        //dataController.viewContext.delete(locations[0])
+        if let locationToDelete = locationFromAnotation(anotation: view.annotation!){
+          dataController.viewContext.delete(locationToDelete)
+        }
+        
+        //try? dataController.viewContext.save()
+        do {
+            try dataController.viewContext.save()
+        } catch let error {
+            print(error)
+        }
+        loadLocations()
+    }
+    func locationFromAnotation(anotation: MKAnnotation) -> Location? {
+        for location in locations{
+            if location.lat == anotation.coordinate.latitude && location.lon == anotation.coordinate.longitude{
+                return location
+            }
+        }
+        return nil
     }
 
 }
