@@ -12,18 +12,30 @@ import CoreData
 private let reuseIdentifier = "PhotosCollectionViewCell"
 
 class PhotosCollectionViewController: UICollectionViewController {
+    @IBOutlet var photosCollectionView: UICollectionView!
     var dataController: DataController!
     var location:Location!
-    var photos:[UIImage]!
+    var photos:[UIImage] = []
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.fetchPhotos()
-        
+        fetchPhotos()
+        if photos.isEmpty{
+            downloadPhotos()
+        } else{
+            self.fetchPhotos()
+        }
     }
-
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(true)
+        //photos = []
+    }
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of items
-        return photos.count
+        if  photos.isEmpty{
+            return 0
+        } else{
+            return photos.count
+        }
     }
 
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -36,22 +48,35 @@ class PhotosCollectionViewController: UICollectionViewController {
     func fetchPhotos(){
         let photosDB:[Photo]
         let fetchRequest:NSFetchRequest<Photo> = Photo.fetchRequest()
+        let predicate = NSPredicate(format: "location == %@", location)
+        fetchRequest.predicate = predicate
         if let result = try? dataController.viewContext.fetch(fetchRequest){
             photosDB = result
             for photo in photosDB{
                 photos.append(UIImage(data: photo.photo!)!)
+                print("appended")
             }
+            self.photosCollectionView.reloadData()
+        } else{
+            print("fetch error")
         }
     }
     func storePhotos(images:[UIImage]) {
         for image in images{
             let photo = Photo(context: dataController.viewContext)
             photo.photo = image.pngData()
+            do{
+                try dataController.viewContext.save()
+                print("saved")
+            }catch let savingEroor{
+                print(savingEroor)
+            }
         }
+        self.photosCollectionView.reloadData()
     }
     func downloadPhotos(){
         // get photos urls
-        API.sharedAPI.getStudentLocations(lat: location.lat, lon: location.lon) { (urls, error) in
+        API.sharedAPI.getPhotosURLs(lat: location.lat, lon: location.lon) { (urls, error) in
             if urls != nil{
                 API.sharedAPI.downloadPhotos(urls: urls!) {(images, error) in
                     if images?.count != 0 {

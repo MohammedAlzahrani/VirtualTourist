@@ -12,7 +12,7 @@ import Kingfisher
 class API {
     static let sharedAPI = API()
     // TODO:- return urls of photos
-    func getStudentLocations(lat:Double, lon: Double, completion: @escaping (_ result:[String]?, _ error:String?)->Void)  {
+    func getPhotosURLs(lat:Double, lon: Double, completion: @escaping (_ result:[String]?, _ error:String?)->Void)  {
         let latString = String(lat)
         let lonString = String(lon)
         let urlString = APIConstants.PhotoSearchURL + "&lat=" + latString + "&lon=" + lonString
@@ -71,16 +71,20 @@ class API {
     }
     func downloadPhotos(urls:[String], completion: @escaping (_ result:[UIImage]?, _ error:String?)->Void) {
         let downloader = ImageDownloader.default
-        let url = URL(string: urls[0])!
-        downloader.downloadImage(with: url) { result in
-            switch result {
-            case .success(let value):
-                print(value.image)
-                completion([value.image],nil)
-            case .failure(let error):
-                print(error)
-                completion(nil,error.errorDescription)
+        //let url = URL(string: urls[0])!
+        for urlString in urls{
+            let url = URL(string: urlString)
+            downloader.downloadImage(with: url!) { result in
+                switch result {
+                case .success(let value):
+                    print(value.image)
+                    completion([value.image],nil)
+                case .failure(let error):
+                    print(error)
+                    completion(nil,error.errorDescription)
+                }
             }
         }
+        
     }
 }
