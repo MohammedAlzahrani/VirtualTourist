@@ -16,6 +16,11 @@ class PhotosCollectionViewController: UICollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         print(location.lon)
+        API.sharedAPI.getStudentLocations(lat: location.lat, lon: location.lon) { (urls, error) in
+            if urls != nil{
+                API.sharedAPI.downloadPhotos(urls: urls!)
+            }
+        }
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
 
