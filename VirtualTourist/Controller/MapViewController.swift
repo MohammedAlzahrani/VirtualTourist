@@ -72,17 +72,16 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 //        locationToDelete.lat = (view.annotation?.coordinate.latitude)!
 //        locationToDelete.lon = (view.annotation?.coordinate.longitude)!
         //dataController.viewContext.delete(locations[0])
-        if let locationToDelete = locationFromAnotation(anotation: view.annotation!){
-          dataController.viewContext.delete(locationToDelete)
-        }
+        // remove from array
+//        let index = locations
+        let location = locationFromAnotation(anotation: view.annotation!)
+//        loadLocations()
+        let storyboard = UIStoryboard (name: "Main", bundle: nil)
+        let photosVC = storyboard.instantiateViewController(withIdentifier: "PhotosCollectionView")as! PhotosCollectionViewController
+        photosVC.dataController = dataController
+        photosVC.location = location!
+        self.navigationController?.pushViewController(photosVC, animated: true)
         
-        //try? dataController.viewContext.save()
-        do {
-            try dataController.viewContext.save()
-        } catch let error {
-            print(error)
-        }
-        loadLocations()
     }
     func locationFromAnotation(anotation: MKAnnotation) -> Location? {
         for location in locations{
@@ -91,6 +90,19 @@ class MapViewController: UIViewController, MKMapViewDelegate {
             }
         }
         return nil
+    }
+    func deleteLocation(location:Location) {
+//        if let locationToDelete = location(anotation: view.annotation!){
+        dataController.viewContext.delete(location)
+//        }
+        
+        //try? dataController.viewContext.save()
+        do {
+            try dataController.viewContext.save()
+        } catch let error {
+            print(error)
+        }
+
     }
 
 }

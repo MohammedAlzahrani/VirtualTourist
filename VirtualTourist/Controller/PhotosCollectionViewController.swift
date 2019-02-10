@@ -11,15 +11,16 @@ import UIKit
 private let reuseIdentifier = "PhotoCollectionViewCell"
 
 class PhotosCollectionViewController: UICollectionViewController {
-
+    var dataController: DataController!
+    var location:Location!
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        print(location.lon)
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
 
         // Register cell classes
-        self.collectionView!.register(UICollectionViewCell.self, forCellWithReuseIdentifier: reuseIdentifier)
+//        self.collectionView!.register(UICollectionViewCell.self, forCellWithReuseIdentifier: reuseIdentifier)
 
         // Do any additional setup after loading the view.
     }
