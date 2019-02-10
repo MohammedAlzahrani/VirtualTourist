@@ -7,60 +7,65 @@
 //
 
 import UIKit
+import CoreData
 
-private let reuseIdentifier = "PhotoCollectionViewCell"
+private let reuseIdentifier = "PhotosCollectionViewCell"
 
 class PhotosCollectionViewController: UICollectionViewController {
     var dataController: DataController!
     var location:Location!
+    var photos:[UIImage]!
     override func viewDidLoad() {
         super.viewDidLoad()
-        print(location.lon)
-        API.sharedAPI.getStudentLocations(lat: location.lat, lon: location.lon) { (urls, error) in
-            if urls != nil{
-                API.sharedAPI.downloadPhotos(urls: urls!)
-            }
-        }
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Register cell classes
-//        self.collectionView!.register(UICollectionViewCell.self, forCellWithReuseIdentifier: reuseIdentifier)
-
-        // Do any additional setup after loading the view.
+        self.fetchPhotos()
+        
     }
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using [segue destinationViewController].
-        // Pass the selected object to the new view controller.
-    }
-    */
-
-    // MARK: UICollectionViewDataSource
-
-//    override func numberOfSections(in collectionView: UICollectionView) -> Int {
-//        // #warning Incomplete implementation, return the number of sections
-//        return 0
-//    }
-
 
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of items
-        return 0
+        return photos.count
     }
 
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath)
-    
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! PhotosCollectionViewCell
         // Configure the cell
-    
+        cell.photoImageView.image = photos[indexPath.row]
         return cell
     }
-
+    
+    func fetchPhotos(){
+        let photosDB:[Photo]
+        let fetchRequest:NSFetchRequest<Photo> = Photo.fetchRequest()
+        if let result = try? dataController.viewContext.fetch(fetchRequest){
+            photosDB = result
+            for photo in photosDB{
+                photos.append(UIImage(data: photo.photo!)!)
+            }
+        }
+    }
+    func storePhotos(images:[UIImage]) {
+        for image in images{
+            let photo = Photo(context: dataController.viewContext)
+            photo.photo = image.pngData()
+        }
+    }
+    func downloadPhotos(){
+        // get photos urls
+        API.sharedAPI.getStudentLocations(lat: location.lat, lon: location.lon) { (urls, error) in
+            if urls != nil{
+                API.sharedAPI.downloadPhotos(urls: urls!) {(images, error) in
+                    if images?.count != 0 {
+                        self.storePhotos(images: images!)
+                    } else{
+                        print("no images returned")
+                    }
+                }
+            } else{
+                print("no photos urls found")
+            }
+        }
+        
+    }
     // MARK: UICollectionViewDelegate
 
     /*

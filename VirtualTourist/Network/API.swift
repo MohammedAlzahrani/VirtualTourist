@@ -69,15 +69,17 @@ class API {
         }
         task.resume()
     }
-    func downloadPhotos(urls:[String]) {
+    func downloadPhotos(urls:[String], completion: @escaping (_ result:[UIImage]?, _ error:String?)->Void) {
         let downloader = ImageDownloader.default
         let url = URL(string: urls[0])!
         downloader.downloadImage(with: url) { result in
             switch result {
             case .success(let value):
                 print(value.image)
+                completion([value.image],nil)
             case .failure(let error):
                 print(error)
+                completion(nil,error.errorDescription)
             }
         }
     }
