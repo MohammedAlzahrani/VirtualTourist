@@ -18,6 +18,8 @@
 		CD0AB1E5220E28CF005EB75B /* APIConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD0AB1E4220E28CF005EB75B /* APIConstants.swift */; };
 		CD0AB1E8220E4C04005EB75B /* VirtualTourist.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = CD0AB1E6220E4C04005EB75B /* VirtualTourist.xcdatamodeld */; };
 		CD0AB1EA220E5338005EB75B /* DataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD0AB1E9220E5338005EB75B /* DataController.swift */; };
+		CD34B29E22105F900039D79D /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD34B29D22105F900039D79D /* API.swift */; };
+		CD34B2A0221062D70039D79D /* Photos.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD34B29F221062D70039D79D /* Photos.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,6 +37,8 @@
 		CD0AB1E4220E28CF005EB75B /* APIConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIConstants.swift; sourceTree = "<group>"; };
 		CD0AB1E7220E4C04005EB75B /* VirtualTourist.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = VirtualTourist.xcdatamodel; sourceTree = "<group>"; };
 		CD0AB1E9220E5338005EB75B /* DataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataController.swift; sourceTree = "<group>"; };
+		CD34B29D22105F900039D79D /* API.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = API.swift; sourceTree = "<group>"; };
+		CD34B29F221062D70039D79D /* Photos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Photos.swift; sourceTree = "<group>"; };
 		CEAEC1908A2E89CCB8EA8555 /* Pods_VirtualTourist.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_VirtualTourist.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -97,6 +101,7 @@
 			children = (
 				CD0AB1E6220E4C04005EB75B /* VirtualTourist.xcdatamodeld */,
 				CD0AB1E9220E5338005EB75B /* DataController.swift */,
+				CD34B29F221062D70039D79D /* Photos.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -115,6 +120,7 @@
 			isa = PBXGroup;
 			children = (
 				CD0AB1E4220E28CF005EB75B /* APIConstants.swift */,
+				CD34B29D22105F900039D79D /* API.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -255,12 +261,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CD34B2A0221062D70039D79D /* Photos.swift in Sources */,
 				CD0AB1EA220E5338005EB75B /* DataController.swift in Sources */,
 				CD0AB1E1220E244C005EB75B /* PhotosCollectionViewController.swift in Sources */,
 				CD0AB1E5220E28CF005EB75B /* APIConstants.swift in Sources */,
 				CD0AB1E8220E4C04005EB75B /* VirtualTourist.xcdatamodeld in Sources */,
 				CD0AB1E3220E2736005EB75B /* PhotosCollectionViewCell.swift in Sources */,
 				CD0AB1CD220E2339005EB75B /* MapViewController.swift in Sources */,
+				CD34B29E22105F900039D79D /* API.swift in Sources */,
 				CD0AB1CB220E2339005EB75B /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
