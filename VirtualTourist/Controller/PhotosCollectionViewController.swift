@@ -21,13 +21,11 @@ class PhotosCollectionViewController: UICollectionViewController {
         fetchPhotos()
         if photos.isEmpty{
             downloadPhotos()
-        } else{
-            self.fetchPhotos()
         }
     }
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(true)
-        //photos = []
+        photos = []
     }
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of items
@@ -52,6 +50,7 @@ class PhotosCollectionViewController: UICollectionViewController {
         fetchRequest.predicate = predicate
         if let result = try? dataController.viewContext.fetch(fetchRequest){
             photosDB = result
+            print("number of fetched photos: \(photosDB.count)")
             for photo in photosDB{
                 photos.append(UIImage(data: photo.photo!)!)
                 print("appended")
@@ -65,13 +64,16 @@ class PhotosCollectionViewController: UICollectionViewController {
         for image in images{
             let photo = Photo(context: dataController.viewContext)
             photo.photo = image.pngData()
+            photo.location = location
             do{
                 try dataController.viewContext.save()
                 print("saved")
-            }catch let savingEroor{
-                print(savingEroor)
+                photos.append(image)
+            }catch {
+                print(error)
             }
         }
+        //fetchPhotos()
         self.photosCollectionView.reloadData()
     }
     func downloadPhotos(){
