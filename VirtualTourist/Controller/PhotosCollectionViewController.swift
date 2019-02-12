@@ -16,6 +16,7 @@ class PhotosCollectionViewController: UICollectionViewController {
     var dataController: DataController!
     var location:Location!
     var photos:[UIImage] = []
+    var dbPhotos:[Photo] = []
     override func viewDidLoad() {
         super.viewDidLoad()
         fetchPhotos()
@@ -43,6 +44,12 @@ class PhotosCollectionViewController: UICollectionViewController {
         return cell
     }
     
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        deletePhotos(photos: [dbPhotos[indexPath.row]])
+        photos.remove(at: indexPath.row)
+        collectionView.reloadData()
+    }
+    
     func fetchPhotos(){
         let photosDB:[Photo]
         let fetchRequest:NSFetchRequest<Photo> = Photo.fetchRequest()
@@ -52,6 +59,7 @@ class PhotosCollectionViewController: UICollectionViewController {
             photosDB = result
             print("number of fetched photos: \(photosDB.count)")
             for photo in photosDB{
+                dbPhotos.append(photo)
                 photos.append(UIImage(data: photo.photo!)!)
                 print("appended")
             }
@@ -68,6 +76,7 @@ class PhotosCollectionViewController: UICollectionViewController {
             do{
                 try dataController.viewContext.save()
                 print("saved")
+                dbPhotos.append(photo)
                 photos.append(image)
             }catch {
                 print(error)
@@ -75,6 +84,16 @@ class PhotosCollectionViewController: UICollectionViewController {
         }
         //fetchPhotos()
         self.photosCollectionView.reloadData()
+    }
+    func deletePhotos(photos:[Photo]) {
+        for photo in photos{
+            dataController.viewContext.delete(photo)
+            do{
+                try dataController.viewContext.save()
+            }catch{
+                print(error)
+            }
+        }
     }
     func downloadPhotos(){
         // get photos urls
