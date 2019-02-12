@@ -39,16 +39,6 @@ class API {
                 sendError("No data was returned by the request!")
                 return
             }
-            //print(String(data: data, encoding: .utf8)!)
-//            var photos: PhotoResponse
-//            do{
-//                photos = try JSONDecoder().decode(PhotoResponse.self, from: data)
-//            } catch let jsonError{
-//                sendError(jsonError.localizedDescription)
-//                print("json error")
-//                print(jsonError)
-//                return
-//            }
             // parse the data
             let parsedResult: [String:AnyObject]!
             do {
@@ -60,11 +50,14 @@ class API {
             var urls:[String] = []
             let photosDict = parsedResult["photos"] as! [String:AnyObject]
             let photoArray = photosDict["photo"] as! [[String: AnyObject]]
-            for photo in photoArray{
-                urls.append(photo["url_m"] as! String)
+//            for photo in photoArray{
+//                urls.append(photo["url_m"] as! String)
+//            }
+            // if total == 0
+            for _ in 1...12{
+                let randomNumber = Int(arc4random_uniform(UInt32(photoArray.count)))
+                urls.append(photoArray[randomNumber]["url_m"] as! String)
             }
-            //self.appDelegate.studentLocations = locationsDict.results
-            //print(urls)
             completion(urls, nil)
         }
         task.resume()

@@ -23,6 +23,7 @@ class PhotosCollectionViewController: UICollectionViewController {
         if photos.isEmpty{
             downloadPhotos()
         }
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "New Collection", style: .plain, target: self, action: #selector(newPhotosCollection))
     }
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(true)
@@ -111,6 +112,13 @@ class PhotosCollectionViewController: UICollectionViewController {
             }
         }
         
+    }
+    @objc func newPhotosCollection(){
+        self.navigationItem.rightBarButtonItem?.isEnabled = false
+        deletePhotos(photos: dbPhotos)
+        photos = []
+        downloadPhotos()
+        self.navigationItem.rightBarButtonItem?.isEnabled = true
     }
     // MARK: UICollectionViewDelegate
 
