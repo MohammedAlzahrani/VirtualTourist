@@ -109,12 +109,13 @@ class PhotosCollectionViewController: UICollectionViewController {
     func downloadPhotos(){
         // get photos urls
         API.sharedAPI.getPhotosURLs(lat: location.lat, lon: location.lon) { (urls, error) in
-            DispatchQueue.main.async{self.configureUI(enabled: false)}
+            //DispatchQueue.main.async{self.configureUI(enabled: false)}
             if urls != nil{
                 API.sharedAPI.downloadPhotos(urls: urls!) {(images, error) in
                     if images?.count != 0 {
                         self.storePhotos(images: images!)
-                        DispatchQueue.main.async{self.configureUI(enabled: true)}
+                        if self.photos.count == urls!.count{
+                            DispatchQueue.main.async{self.configureUI(enabled: true)}}
                     } else{
                         print("no images returned")
                     }
@@ -129,6 +130,7 @@ class PhotosCollectionViewController: UICollectionViewController {
 //        self.navigationItem.rightBarButtonItem?.isEnabled = false
         deletePhotos(photos: dbPhotos, index: nil)
         //photos = []
+        self.configureUI(enabled: false)
         downloadPhotos()
 //        self.navigationItem.rightBarButtonItem?.isEnabled = true
     }
