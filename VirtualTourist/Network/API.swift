@@ -50,7 +50,7 @@ class API {
             var urls:[String] = []
             let photosDict = parsedResult["photos"] as! [String:AnyObject]
             guard (photosDict["total"] as! String != "0") else{
-                completion(nil,"No photo was found for this location")
+                sendError("No photo was found for this location")
                 return
             }
             let photoArray = photosDict["photo"] as! [[String: AnyObject]]
