@@ -27,7 +27,8 @@ class PhotosCollectionViewController: UICollectionViewController {
     }
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(true)
-        photos = []
+        photos.removeAll()
+        dbPhotos.removeAll()
     }
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of items
@@ -46,8 +47,8 @@ class PhotosCollectionViewController: UICollectionViewController {
     }
     
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        deletePhotos(photos: [dbPhotos[indexPath.row]])
-        photos.remove(at: indexPath.row)
+        deletePhotos(photos: [dbPhotos[indexPath.row]], index: indexPath.row)
+//        photos.remove(at: indexPath.row)
         collectionView.reloadData()
     }
     
@@ -59,6 +60,8 @@ class PhotosCollectionViewController: UICollectionViewController {
         if let result = try? dataController.viewContext.fetch(fetchRequest){
             photosDB = result
             print("number of fetched photos: \(photosDB.count)")
+            self.dbPhotos.removeAll()
+            self.photos.removeAll()
             for photo in photosDB{
                 dbPhotos.append(photo)
                 photos.append(UIImage(data: photo.photo!)!)
@@ -77,20 +80,27 @@ class PhotosCollectionViewController: UICollectionViewController {
             do{
                 try dataController.viewContext.save()
                 print("saved")
-                dbPhotos.append(photo)
-                photos.append(image)
+//                dbPhotos.append(photo)
+//                photos.append(image)
             }catch {
                 print(error)
             }
         }
-        //fetchPhotos()
-        self.photosCollectionView.reloadData()
+        fetchPhotos()
+//        self.photosCollectionView.reloadData()
     }
-    func deletePhotos(photos:[Photo]) {
+    func deletePhotos(photos:[Photo], index:Int?) {
         for photo in photos{
             dataController.viewContext.delete(photo)
             do{
                 try dataController.viewContext.save()
+                if index != nil{
+                    self.photos.remove(at: index!)
+                    self.dbPhotos.remove(at: index!)
+                } else{
+                    self.photos.removeAll()
+                    self.dbPhotos.removeAll()
+                }
             }catch{
                 print(error)
             }
@@ -99,10 +109,12 @@ class PhotosCollectionViewController: UICollectionViewController {
     func downloadPhotos(){
         // get photos urls
         API.sharedAPI.getPhotosURLs(lat: location.lat, lon: location.lon) { (urls, error) in
+            DispatchQueue.main.async{self.configureUI(enabled: false)}
             if urls != nil{
                 API.sharedAPI.downloadPhotos(urls: urls!) {(images, error) in
                     if images?.count != 0 {
                         self.storePhotos(images: images!)
+                        DispatchQueue.main.async{self.configureUI(enabled: true)}
                     } else{
                         print("no images returned")
                     }
@@ -114,11 +126,15 @@ class PhotosCollectionViewController: UICollectionViewController {
         
     }
     @objc func newPhotosCollection(){
-        self.navigationItem.rightBarButtonItem?.isEnabled = false
-        deletePhotos(photos: dbPhotos)
-        photos = []
+//        self.navigationItem.rightBarButtonItem?.isEnabled = false
+        deletePhotos(photos: dbPhotos, index: nil)
+        //photos = []
         downloadPhotos()
-        self.navigationItem.rightBarButtonItem?.isEnabled = true
+//        self.navigationItem.rightBarButtonItem?.isEnabled = true
+    }
+    
+    func configureUI(enabled:Bool) {
+        self.navigationItem.rightBarButtonItem?.isEnabled = enabled
     }
     // MARK: UICollectionViewDelegate
 
