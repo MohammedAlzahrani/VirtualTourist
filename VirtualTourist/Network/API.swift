@@ -74,7 +74,6 @@ class API {
             downloader.downloadImage(with: url!) { result in
                 switch result {
                 case .success(let value):
-                    print(value.image)
                     completion([value.image],nil)
                 case .failure(let error):
                     print(error)

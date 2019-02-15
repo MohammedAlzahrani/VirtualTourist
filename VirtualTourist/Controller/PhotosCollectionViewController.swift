@@ -100,13 +100,13 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
         // get photos urls
         API.sharedAPI.getPhotosURLs(lat: pin.lat, lon: pin.lon) { (urls, error) in
             guard (error == nil) else{
-                print("no photos urls found")
+                self.showAlert(message: error!)
                 return
             }
             if urls != nil{
                 API.sharedAPI.downloadPhotos(urls: urls!) {(images, error) in
                     guard (error == nil) else{
-                        print("no images returned")
+                        self.showAlert(message: error!)
                         return
                     }
                     if images?.count != 0 {
@@ -141,6 +141,14 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
             break
         case .update:
             break
+        }
+    }
+    
+    func showAlert(message:String) {
+        DispatchQueue.main.async {
+            let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            self.present(alert, animated: true, completion: nil)
         }
     }
 //    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {

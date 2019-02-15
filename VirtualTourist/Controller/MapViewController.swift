@@ -27,7 +27,6 @@ class MapViewController: UIViewController, MKMapViewDelegate {
     }
     @objc func longPress(longPressRecognizer: UILongPressGestureRecognizer){
         if longPressRecognizer.state == UIGestureRecognizer.State.ended{
-            print("long pressed")
             let longPressedPoint = longPressRecognizer.location(in: mapView)
             let coordinate = mapView.convert(longPressedPoint, toCoordinateFrom: mapView)
 
@@ -44,8 +43,6 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         }
     }
     func savePin(lat:Double,lon:Double) {
-        print(lat)
-        print(lon)
         let pin = Pin(context: dataController.viewContext)
         pin.lat = lat
         pin.lon = lon
@@ -56,7 +53,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
     // create annotations using pin and display it on map
     func loadPins() {
         guard pins.count != 0 else {
-            print("no pins")
+            self.showAlert(message: "no pins")
             return
         }
         for pin in pins{
@@ -86,7 +83,14 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         }
         return nil
     }
-
+    
+    func showAlert(message:String) {
+        DispatchQueue.main.async {
+            let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            self.present(alert, animated: true, completion: nil)
+        }
+    }
 
 }
 
