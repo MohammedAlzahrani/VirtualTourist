@@ -11,67 +11,92 @@ import CoreData
 
 private let reuseIdentifier = "PhotosCollectionViewCell"
 
-class PhotosCollectionViewController: UICollectionViewController {
+class PhotosCollectionViewController: UICollectionViewController, NSFetchedResultsControllerDelegate {
     @IBOutlet var photosCollectionView: UICollectionView!
     var dataController: DataController!
+    var fetchedResultsController:NSFetchedResultsController<Photo>!
     var location:Location!
-    var photos:[UIImage] = []
-    var dbPhotos:[Photo] = []
+//    var photos:[UIImage] = []
+//    var dbPhotos:[Photo] = []
+    
     override func viewDidLoad() {
+        
+//        setUpFetchResultsController()
+        
         super.viewDidLoad()
-        fetchPhotos()
-        if photos.isEmpty{
-            downloadPhotos()
-        }
+//        fetchPhotos()
+//        if photos.isEmpty{
+//            downloadPhotos()
+//        }
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "New Collection", style: .plain, target: self, action: #selector(newPhotosCollection))
+    }
+    func setUpFetchResultsController() {
+        let fetchRequest:NSFetchRequest<Photo> = Photo.fetchRequest()
+        let predicate = NSPredicate(format: "location == %@", location)
+        fetchRequest.predicate = predicate
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: nil)
+        fetchedResultsController.delegate = self
+        do {
+            try fetchedResultsController.performFetch()
+        } catch  {
+            fatalError("fetch request faild: \(error.localizedDescription)")
+        }
     }
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(true)
-        photos.removeAll()
-        dbPhotos.removeAll()
+//        photos.removeAll()
+//        dbPhotos.removeAll()
+        fetchedResultsController = nil
+    }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        setUpFetchResultsController()
     }
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of items
-        if  photos.isEmpty{
-            return 0
-        } else{
-            return photos.count
-        }
+//        if  photos.isEmpty{
+//            return 0
+//        } else{
+//            return photos.count
+//        }
+        return fetchedResultsController.sections?[section].numberOfObjects ?? 0
     }
 
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! PhotosCollectionViewCell
+        let photo = fetchedResultsController.object(at: indexPath)
         // Configure the cell
-        cell.photoImageView.image = photos[indexPath.row]
+        cell.photoImageView.image = UIImage(data: photo.photo!)
         return cell
     }
     
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        deletePhotos(photos: [dbPhotos[indexPath.row]], index: indexPath.row)
+//        deletePhotos(photos: [dbPhotos[indexPath.row]], index: indexPath.row)
 //        photos.remove(at: indexPath.row)
-        collectionView.reloadData()
+        //collectionView.reloadData()
     }
     
-    func fetchPhotos(){
-        let photosDB:[Photo]
-        let fetchRequest:NSFetchRequest<Photo> = Photo.fetchRequest()
-        let predicate = NSPredicate(format: "location == %@", location)
-        fetchRequest.predicate = predicate
-        if let result = try? dataController.viewContext.fetch(fetchRequest){
-            photosDB = result
-            print("number of fetched photos: \(photosDB.count)")
-            self.dbPhotos.removeAll()
-            self.photos.removeAll()
-            for photo in photosDB{
-                dbPhotos.append(photo)
-                photos.append(UIImage(data: photo.photo!)!)
-                print("appended")
-            }
-            self.photosCollectionView.reloadData()
-        } else{
-            print("fetch error")
-        }
-    }
+//    func fetchPhotos(){
+//        let photosDB:[Photo]
+//        let fetchRequest:NSFetchRequest<Photo> = Photo.fetchRequest()
+//        let predicate = NSPredicate(format: "location == %@", location)
+//        fetchRequest.predicate = predicate
+//        if let result = try? dataController.viewContext.fetch(fetchRequest){
+//            photosDB = result
+//            print("number of fetched photos: \(photosDB.count)")
+//            self.dbPhotos.removeAll()
+//            self.photos.removeAll()
+//            for photo in photosDB{
+//                dbPhotos.append(photo)
+//                photos.append(UIImage(data: photo.photo!)!)
+//                print("appended")
+//            }
+//            self.photosCollectionView.reloadData()
+//        } else{
+//            print("fetch error")
+//        }
+//    }
+
     func storePhotos(images:[UIImage]) {
         for image in images{
             let photo = Photo(context: dataController.viewContext)
@@ -86,7 +111,7 @@ class PhotosCollectionViewController: UICollectionViewController {
                 print(error)
             }
         }
-        fetchPhotos()
+        //fetchPhotos()
 //        self.photosCollectionView.reloadData()
     }
     func deletePhotos(photos:[Photo], index:Int?) {
