@@ -12,22 +12,17 @@ import CoreData
 class MapViewController: UIViewController, MKMapViewDelegate {
 
     @IBOutlet weak var mapView: MKMapView!
-    var locations: [Location] = []
+    var pins: [Pin] = []
     var annotations: [MKPointAnnotation] = []
     var dataController: DataController!
-//    var location: Location 
+
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         self.mapView.delegate = self
         let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(longPress))
         self.mapView.addGestureRecognizer(longPressRecognizer)
-        // loading locations from DB
-        let fetchRequest:NSFetchRequest<Location> = Location.fetchRequest()
-        if let result = try? dataController.viewContext.fetch(fetchRequest){
-            locations = result
-            loadLocations()
-        }
+        fetchPins()
 
     }
     @objc func longPress(longPressRecognizer: UILongPressGestureRecognizer){
@@ -35,75 +30,63 @@ class MapViewController: UIViewController, MKMapViewDelegate {
             print("long pressed")
             let longPressedPoint = longPressRecognizer.location(in: mapView)
             let coordinate = mapView.convert(longPressedPoint, toCoordinateFrom: mapView)
-//            let annotation = MKPointAnnotation()
-//            annotation.coordinate = coordinate
-            //mapView.addAnnotation(annotation)
+
             savePin(lat: coordinate.latitude, lon: coordinate.longitude)
         }
         
     }
+     func fetchPins() {
+        // fetch pins from DB
+        let fetchRequest:NSFetchRequest<Pin> = Pin.fetchRequest()
+        if let result = try? dataController.viewContext.fetch(fetchRequest){
+            pins = result
+            loadPins()
+        }
+    }
     func savePin(lat:Double,lon:Double) {
         print(lat)
         print(lon)
-        let location = Location(context: dataController.viewContext)
-        location.lat = lat
-        location.lon = lon
+        let pin = Pin(context: dataController.viewContext)
+        pin.lat = lat
+        pin.lon = lon
         try? dataController.viewContext.save()
-        locations.append(location)
-        loadLocations()
+        pins.append(pin)
+        loadPins()
     }
-    
-    func loadLocations() {
-        guard locations.count != 0 else {
+    // create annotations using pin and display it on map
+    func loadPins() {
+        guard pins.count != 0 else {
             print("no pins")
             return
         }
-        for location in locations{
+        for pin in pins{
             let annotation = MKPointAnnotation()
-            annotation.coordinate.latitude = location.lat
-            annotation.coordinate.longitude = location.lon
+            annotation.coordinate.latitude = pin.lat
+            annotation.coordinate.longitude = pin.lon
             annotations.append(annotation)
         }
         mapView.addAnnotations(annotations)
     }
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-        // creating and deleting new
-//        let locationToDelete = Location(context: dataController.viewContext)
-//        locationToDelete.lat = (view.annotation?.coordinate.latitude)!
-//        locationToDelete.lon = (view.annotation?.coordinate.longitude)!
-        //dataController.viewContext.delete(locations[0])
-        // remove from array
-//        let index = locations
-        let location = locationFromAnotation(anotation: view.annotation!)
-//        loadLocations()
+
+        let pin = pinFromAnotation(anotation: view.annotation!)
         let storyboard = UIStoryboard (name: "Main", bundle: nil)
         let photosVC = storyboard.instantiateViewController(withIdentifier: "PhotosCollectionView")as! PhotosCollectionViewController
         photosVC.dataController = dataController
-        photosVC.location = location!
+        photosVC.pin = pin!
         self.navigationController?.pushViewController(photosVC, animated: true)
         
     }
-    func locationFromAnotation(anotation: MKAnnotation) -> Location? {
-        for location in locations{
-            if location.lat == anotation.coordinate.latitude && location.lon == anotation.coordinate.longitude{
-                return location
+    // get the pin corosponding to the selected annotation
+    func pinFromAnotation(anotation: MKAnnotation) -> Pin? {
+        for pin in pins{
+            if pin.lat == anotation.coordinate.latitude && pin.lon == anotation.coordinate.longitude{
+                return pin
             }
         }
         return nil
     }
-    func deleteLocation(location:Location) {
-//        if let locationToDelete = location(anotation: view.annotation!){
-        dataController.viewContext.delete(location)
-//        }
-        
-        //try? dataController.viewContext.save()
-        do {
-            try dataController.viewContext.save()
-        } catch let error {
-            print(error)
-        }
 
-    }
 
 }
 

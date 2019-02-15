@@ -15,7 +15,7 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
     @IBOutlet var photosCollectionView: UICollectionView!
     var dataController: DataController!
     var fetchedResultsController:NSFetchedResultsController<Photo>!
-    var location:Location!
+    var pin:Pin!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -28,7 +28,7 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
     
     func setUpFetchResultsController() {
         let fetchRequest:NSFetchRequest<Photo> = Photo.fetchRequest()
-        let predicate = NSPredicate(format: "location == %@", location)
+        let predicate = NSPredicate(format: "pin == %@", pin)
         fetchRequest.predicate = predicate
         let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: true)
         fetchRequest.sortDescriptors = [sortDescriptor]
@@ -77,7 +77,7 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
             let photo = Photo(context: dataController.viewContext)
             photo.photo = image.pngData()
             photo.creationDate = Date()
-            photo.location = location
+            photo.pin = pin
             do{
                 try dataController.viewContext.save()
                 print("saved")
@@ -98,7 +98,7 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
     }
     func downloadPhotos(){
         // get photos urls
-        API.sharedAPI.getPhotosURLs(lat: location.lat, lon: location.lon) { (urls, error) in
+        API.sharedAPI.getPhotosURLs(lat: pin.lat, lon: pin.lon) { (urls, error) in
             guard (error == nil) else{
                 print("no photos urls found")
                 return
