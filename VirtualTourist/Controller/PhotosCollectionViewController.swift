@@ -16,24 +16,22 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
     var dataController: DataController!
     var fetchedResultsController:NSFetchedResultsController<Photo>!
     var location:Location!
-//    var photos:[UIImage] = []
-//    var dbPhotos:[Photo] = []
     
     override func viewDidLoad() {
-        
-//        setUpFetchResultsController()
-        
         super.viewDidLoad()
-//        fetchPhotos()
-//        if photos.isEmpty{
+        setUpFetchResultsController()
+//        if fetchedResultsController.sections?[0].numberOfObjects == 0 {
 //            downloadPhotos()
 //        }
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "New Collection", style: .plain, target: self, action: #selector(newPhotosCollection))
     }
+    
     func setUpFetchResultsController() {
         let fetchRequest:NSFetchRequest<Photo> = Photo.fetchRequest()
         let predicate = NSPredicate(format: "location == %@", location)
         fetchRequest.predicate = predicate
+        let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: true)
+        fetchRequest.sortDescriptors = [sortDescriptor]
         fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: nil)
         fetchedResultsController.delegate = self
         do {
@@ -44,21 +42,16 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
     }
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(true)
-//        photos.removeAll()
-//        dbPhotos.removeAll()
         fetchedResultsController = nil
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         setUpFetchResultsController()
+        if fetchedResultsController.sections?[0].numberOfObjects == 0 {
+            downloadPhotos()
+        }
     }
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of items
-//        if  photos.isEmpty{
-//            return 0
-//        } else{
-//            return photos.count
-//        }
         return fetchedResultsController.sections?[section].numberOfObjects ?? 0
     }
 
@@ -66,66 +59,38 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! PhotosCollectionViewCell
         let photo = fetchedResultsController.object(at: indexPath)
         // Configure the cell
-        cell.photoImageView.image = UIImage(data: photo.photo!)
+        if let photoData = photo.photo{
+           cell.photoImageView.image = UIImage(data: photoData)
+        }
         return cell
     }
     
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-//        deletePhotos(photos: [dbPhotos[indexPath.row]], index: indexPath.row)
-//        photos.remove(at: indexPath.row)
-        //collectionView.reloadData()
+        let photoToDelete = fetchedResultsController.object(at: indexPath)
+        deletePhotos(photos: [photoToDelete])
+        
     }
     
-//    func fetchPhotos(){
-//        let photosDB:[Photo]
-//        let fetchRequest:NSFetchRequest<Photo> = Photo.fetchRequest()
-//        let predicate = NSPredicate(format: "location == %@", location)
-//        fetchRequest.predicate = predicate
-//        if let result = try? dataController.viewContext.fetch(fetchRequest){
-//            photosDB = result
-//            print("number of fetched photos: \(photosDB.count)")
-//            self.dbPhotos.removeAll()
-//            self.photos.removeAll()
-//            for photo in photosDB{
-//                dbPhotos.append(photo)
-//                photos.append(UIImage(data: photo.photo!)!)
-//                print("appended")
-//            }
-//            self.photosCollectionView.reloadData()
-//        } else{
-//            print("fetch error")
-//        }
-//    }
 
     func storePhotos(images:[UIImage]) {
         for image in images{
             let photo = Photo(context: dataController.viewContext)
             photo.photo = image.pngData()
+            photo.creationDate = Date()
             photo.location = location
             do{
                 try dataController.viewContext.save()
                 print("saved")
-//                dbPhotos.append(photo)
-//                photos.append(image)
             }catch {
                 print(error)
             }
         }
-        //fetchPhotos()
-//        self.photosCollectionView.reloadData()
     }
-    func deletePhotos(photos:[Photo], index:Int?) {
+    func deletePhotos(photos:[Photo]) {
         for photo in photos{
             dataController.viewContext.delete(photo)
             do{
                 try dataController.viewContext.save()
-                if index != nil{
-                    self.photos.remove(at: index!)
-                    self.dbPhotos.remove(at: index!)
-                } else{
-                    self.photos.removeAll()
-                    self.dbPhotos.removeAll()
-                }
             }catch{
                 print(error)
             }
@@ -134,35 +99,62 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
     func downloadPhotos(){
         // get photos urls
         API.sharedAPI.getPhotosURLs(lat: location.lat, lon: location.lon) { (urls, error) in
-            //DispatchQueue.main.async{self.configureUI(enabled: false)}
+            guard (error == nil) else{
+                print("no photos urls found")
+                return
+            }
             if urls != nil{
                 API.sharedAPI.downloadPhotos(urls: urls!) {(images, error) in
+                    guard (error == nil) else{
+                        print("no images returned")
+                        return
+                    }
                     if images?.count != 0 {
                         self.storePhotos(images: images!)
-                        if self.photos.count == urls!.count{
+                        if self.fetchedResultsController.sections?[0].numberOfObjects == urls!.count{
                             DispatchQueue.main.async{self.configureUI(enabled: true)}}
-                    } else{
-                        print("no images returned")
                     }
                 }
-            } else{
-                print("no photos urls found")
             }
         }
-        
+
     }
     @objc func newPhotosCollection(){
-//        self.navigationItem.rightBarButtonItem?.isEnabled = false
-        deletePhotos(photos: dbPhotos, index: nil)
-        //photos = []
         self.configureUI(enabled: false)
+        deletePhotos(photos: fetchedResultsController.fetchedObjects!)
         downloadPhotos()
-//        self.navigationItem.rightBarButtonItem?.isEnabled = true
     }
     
     func configureUI(enabled:Bool) {
         self.navigationItem.rightBarButtonItem?.isEnabled = enabled
     }
+ 
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
+        switch type {
+        case .insert:
+            photosCollectionView.insertItems(at: [newIndexPath!])
+            break
+        case .delete:
+            photosCollectionView.deleteItems(at: [indexPath!])
+            break
+        case .move:
+            break
+        case .update:
+            break
+        }
+    }
+//    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+//        //photosCollectionView.reloadData()
+//        //photosCollectionView.beginUpdates()
+//        photosCollectionView.performBatchUpdates(nil, completion: nil)
+//    }
+    
+//    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+//        //photosCollectionView.endUpdates()
+//        photosCollectionView.reloadData()
+//    }
+    
+    
     // MARK: UICollectionViewDelegate
 
     /*
