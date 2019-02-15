@@ -18,6 +18,7 @@
 		CD0AB1E5220E28CF005EB75B /* APIConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD0AB1E4220E28CF005EB75B /* APIConstants.swift */; };
 		CD0AB1E8220E4C04005EB75B /* VirtualTourist.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = CD0AB1E6220E4C04005EB75B /* VirtualTourist.xcdatamodeld */; };
 		CD0AB1EA220E5338005EB75B /* DataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD0AB1E9220E5338005EB75B /* DataController.swift */; };
+		CD15BEC422176BEF00320CF7 /* UIViewController+Alert.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD15BEC322176BEF00320CF7 /* UIViewController+Alert.swift */; };
 		CD34B29E22105F900039D79D /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD34B29D22105F900039D79D /* API.swift */; };
 /* End PBXBuildFile section */
 
@@ -36,6 +37,7 @@
 		CD0AB1E4220E28CF005EB75B /* APIConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIConstants.swift; sourceTree = "<group>"; };
 		CD0AB1E7220E4C04005EB75B /* VirtualTourist.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = VirtualTourist.xcdatamodel; sourceTree = "<group>"; };
 		CD0AB1E9220E5338005EB75B /* DataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataController.swift; sourceTree = "<group>"; };
+		CD15BEC322176BEF00320CF7 /* UIViewController+Alert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Alert.swift"; sourceTree = "<group>"; };
 		CD34B29D22105F900039D79D /* API.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = API.swift; sourceTree = "<group>"; };
 		CEAEC1908A2E89CCB8EA8555 /* Pods_VirtualTourist.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_VirtualTourist.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -108,7 +110,6 @@
 			children = (
 				CD0AB1CC220E2339005EB75B /* MapViewController.swift */,
 				CD0AB1E0220E244C005EB75B /* PhotosCollectionViewController.swift */,
-				CD0AB1E2220E2736005EB75B /* PhotosCollectionViewCell.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -125,6 +126,8 @@
 		CD0AB1DF220E237A005EB75B /* View */ = {
 			isa = PBXGroup;
 			children = (
+				CD0AB1E2220E2736005EB75B /* PhotosCollectionViewCell.swift */,
+				CD15BEC322176BEF00320CF7 /* UIViewController+Alert.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -258,6 +261,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CD15BEC422176BEF00320CF7 /* UIViewController+Alert.swift in Sources */,
 				CD0AB1EA220E5338005EB75B /* DataController.swift in Sources */,
 				CD0AB1E1220E244C005EB75B /* PhotosCollectionViewController.swift in Sources */,
 				CD0AB1E5220E28CF005EB75B /* APIConstants.swift in Sources */,

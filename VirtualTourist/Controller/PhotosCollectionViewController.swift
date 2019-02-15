@@ -12,34 +12,21 @@ import CoreData
 private let reuseIdentifier = "PhotosCollectionViewCell"
 
 class PhotosCollectionViewController: UICollectionViewController, NSFetchedResultsControllerDelegate {
+    
+    // MARK:- Outlets
     @IBOutlet var photosCollectionView: UICollectionView!
     var dataController: DataController!
     var fetchedResultsController:NSFetchedResultsController<Photo>!
     var pin:Pin!
     
+    // MARK:- View functions
     override func viewDidLoad() {
         super.viewDidLoad()
         setUpFetchResultsController()
-//        if fetchedResultsController.sections?[0].numberOfObjects == 0 {
-//            downloadPhotos()
-//        }
+        // add button on the right side of the navigation bar
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "New Collection", style: .plain, target: self, action: #selector(newPhotosCollection))
     }
     
-    func setUpFetchResultsController() {
-        let fetchRequest:NSFetchRequest<Photo> = Photo.fetchRequest()
-        let predicate = NSPredicate(format: "pin == %@", pin)
-        fetchRequest.predicate = predicate
-        let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: true)
-        fetchRequest.sortDescriptors = [sortDescriptor]
-        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: nil)
-        fetchedResultsController.delegate = self
-        do {
-            try fetchedResultsController.performFetch()
-        } catch  {
-            fatalError("fetch request faild: \(error.localizedDescription)")
-        }
-    }
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(true)
         fetchedResultsController = nil
@@ -51,6 +38,8 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
             downloadPhotos()
         }
     }
+    
+    // MARK:- UIcollectionView data source
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return fetchedResultsController.sections?[section].numberOfObjects ?? 0
     }
@@ -68,10 +57,25 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let photoToDelete = fetchedResultsController.object(at: indexPath)
         deletePhotos(photos: [photoToDelete])
-        
     }
     
-
+    // MARK:- Photos functions
+    
+    func setUpFetchResultsController() {
+        let fetchRequest:NSFetchRequest<Photo> = Photo.fetchRequest()
+        let predicate = NSPredicate(format: "pin == %@", pin)
+        fetchRequest.predicate = predicate
+        let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: true)
+        fetchRequest.sortDescriptors = [sortDescriptor]
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: nil)
+        fetchedResultsController.delegate = self
+        do {
+            try fetchedResultsController.performFetch()
+        } catch  {
+            fatalError("fetch request faild: \(error.localizedDescription)")
+        }
+    }
+    // store photos in DB
     func storePhotos(images:[UIImage]) {
         for image in images{
             let photo = Photo(context: dataController.viewContext)
@@ -80,12 +84,12 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
             photo.pin = pin
             do{
                 try dataController.viewContext.save()
-                print("saved")
             }catch {
                 print(error)
             }
         }
     }
+    // delete photos form DB
     func deletePhotos(photos:[Photo]) {
         for photo in photos{
             dataController.viewContext.delete(photo)
@@ -96,14 +100,16 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
             }
         }
     }
+    // download photos from URLs
     func downloadPhotos(){
-        // get photos urls
+        // first: get photos urls
         API.sharedAPI.getPhotosURLs(lat: pin.lat, lon: pin.lon) { (urls, error) in
             guard (error == nil) else{
                 self.showAlert(message: error!)
                 return
             }
             if urls != nil{
+                // then: download photos from URLs
                 API.sharedAPI.downloadPhotos(urls: urls!) {(images, error) in
                     guard (error == nil) else{
                         self.showAlert(message: error!)
@@ -119,6 +125,8 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
         }
 
     }
+    // MARK:- Actions
+    // delete existing photos and download new photos
     @objc func newPhotosCollection(){
         self.configureUI(enabled: false)
         deletePhotos(photos: fetchedResultsController.fetchedObjects!)
@@ -128,7 +136,7 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
     func configureUI(enabled:Bool) {
         self.navigationItem.rightBarButtonItem?.isEnabled = enabled
     }
- 
+    // MARK:-  UI updates
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         switch type {
         case .insert:
@@ -143,55 +151,5 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
             break
         }
     }
-    
-    func showAlert(message:String) {
-        DispatchQueue.main.async {
-            let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-            self.present(alert, animated: true, completion: nil)
-        }
-    }
-//    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-//        //photosCollectionView.reloadData()
-//        //photosCollectionView.beginUpdates()
-//        photosCollectionView.performBatchUpdates(nil, completion: nil)
-//    }
-    
-//    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-//        //photosCollectionView.endUpdates()
-//        photosCollectionView.reloadData()
-//    }
-    
-    
-    // MARK: UICollectionViewDelegate
-
-    /*
-    // Uncomment this method to specify if the specified item should be highlighted during tracking
-    override func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {
-        return true
-    }
-    */
-
-    /*
-    // Uncomment this method to specify if the specified item should be selected
-    override func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        return true
-    }
-    */
-
-    /*
-    // Uncomment these methods to specify if an action menu should be displayed for the specified item, and react to actions performed on the item
-    override func collectionView(_ collectionView: UICollectionView, shouldShowMenuForItemAt indexPath: IndexPath) -> Bool {
-        return false
-    }
-
-    override func collectionView(_ collectionView: UICollectionView, canPerformAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) -> Bool {
-        return false
-    }
-
-    override func collectionView(_ collectionView: UICollectionView, performAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) {
-    
-    }
-    */
 
 }

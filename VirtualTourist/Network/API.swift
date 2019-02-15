@@ -11,16 +11,19 @@ import Kingfisher
 
 class API {
     static let sharedAPI = API()
-    // TODO:- return urls of photos
+    
+    // return urls of photos
     func getPhotosURLs(lat:Double, lon: Double, completion: @escaping (_ result:[String]?, _ error:String?)->Void)  {
+        // constructing the url
         let latString = String(lat)
         let lonString = String(lon)
         let urlString = APIConstants.PhotoSearchURL + "&lat=" + latString + "&lon=" + lonString
         let url = URL(string: urlString)
-        var request = URLRequest(url: url!)
         
+        var request = URLRequest(url: url!)
         let session = URLSession.shared
         let task = session.dataTask(with: request) { data, response, error in
+            // error handling
             func sendError(_ error: String) {
                 print(error)
                 completion(nil, error)
@@ -49,15 +52,13 @@ class API {
             }
             var urls:[String] = []
             let photosDict = parsedResult["photos"] as! [String:AnyObject]
+            /* GUARD: Was there any photos returned for that location? */
             guard (photosDict["total"] as! String != "0") else{
                 sendError("No photo was found for this location")
                 return
             }
             let photoArray = photosDict["photo"] as! [[String: AnyObject]]
-//            for photo in photoArray{
-//                urls.append(photo["url_m"] as! String)
-//            }
-            // if total == 0
+
             for _ in 1...12{
                 let randomNumber = Int(arc4random_uniform(UInt32(photoArray.count)))
                 urls.append(photoArray[randomNumber]["url_m"] as! String)
@@ -66,9 +67,10 @@ class API {
         }
         task.resume()
     }
+    
+    // download photos from ulrs
     func downloadPhotos(urls:[String], completion: @escaping (_ result:[UIImage]?, _ error:String?)->Void) {
         let downloader = ImageDownloader.default
-        //let url = URL(string: urls[0])!
         for urlString in urls{
             let url = URL(string: urlString)
             downloader.downloadImage(with: url!) { result in
