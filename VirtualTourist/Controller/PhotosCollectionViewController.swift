@@ -25,6 +25,9 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
         setUpFetchResultsController()
         // add button on the right side of the navigation bar
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "New Collection", style: .plain, target: self, action: #selector(newPhotosCollection))
+        if fetchedResultsController.sections?[0].numberOfObjects == 0 {
+            downloadPhotos()
+        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -34,23 +37,28 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         setUpFetchResultsController()
-        if fetchedResultsController.sections?[0].numberOfObjects == 0 {
-            downloadPhotos()
-        }
+//        if fetchedResultsController.sections?[0].numberOfObjects == 0 {
+//            downloadPhotos()
+//        }
     }
     
     // MARK:- UIcollectionView data source
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return fetchedResultsController.sections?[section].numberOfObjects ?? 0
+        return fetchedResultsController.sections?[section].numberOfObjects ?? 12
     }
 
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! PhotosCollectionViewCell
+        print(fetchedResultsController.sections?.count)
+        if fetchedResultsController.sections?.count == 0{
+            cell.photoImageView.image = UIImage(named: "placeholder")
+        }
+        else{
         let photo = fetchedResultsController.object(at: indexPath)
         // Configure the cell
         if let photoData = photo.photo{
            cell.photoImageView.image = UIImage(data: photoData)
-        }
+            }}
         return cell
     }
     
