@@ -27,7 +27,7 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
         // add button on the right side of the navigation bar
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "New Collection", style: .plain, target: self, action: #selector(newPhotosCollection))
         if fetchedResultsController.sections?[0].numberOfObjects == 0 {
-            downloadPhotos()
+            getPhotosURLs()
         }
     }
     
@@ -55,21 +55,22 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
 
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! PhotosCollectionViewCell
-//        print(fetchedResultsController.sections?.count)
-
+        // load photos from DB
         if urls.isEmpty{
             let photo = fetchedResultsController.object(at: indexPath)
-            // Configure the cell
             if let photoData = photo.photo{
                 cell.photoImageView.image = UIImage(data: photoData)
             }
-        }else{
+        }
+        // download photos
+        else{
             print("strat downloading")
             let placeHolderImage = UIImage(named:"placeholder")
             cell.photoImageView.kf.indicatorType = .activity
             cell.photoImageView.kf.setImage(with: urls[indexPath.row], placeholder: placeHolderImage){ result in
                 switch result {
                 case .success(let value):
+                    // store the downloaded photo in DB
                     self.storePhotos(images: [value.image])
                 case .failure(let error):
                     print(error.localizedDescription)
@@ -85,6 +86,7 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
     }
     
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        // delete a photo when tapped
         let photoToDelete = fetchedResultsController.object(at: indexPath)
         deletePhotos(photos: [photoToDelete])
     }
@@ -130,9 +132,8 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
             }
         }
     }
-    // download photos from URLs
-    func downloadPhotos(){
-        // first: get photos urls
+    // get photos URLs
+    func getPhotosURLs(){
         API.sharedAPI.getPhotosURLs(lat: pin.lat, lon: pin.lon) { (urls, error) in
             guard (error == nil) else{
                 self.showAlert(message: error!)
@@ -144,18 +145,6 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
                     self.photosCollectionView.reloadData()
                 }
                 
-                // then: download photos from URLs
-//                API.sharedAPI.downloadPhotos(urls: urls!) {(images, error) in
-//                    guard (error == nil) else{
-//                        self.showAlert(message: error!)
-//                        return
-//                    }
-//                    if images?.count != 0 {
-//                        self.storePhotos(images: images!)
-//                        if self.fetchedResultsController.sections?[0].numberOfObjects == urls!.count{
-//                            DispatchQueue.main.async{self.configureUI(enabled: true)}}
-//                    }
-//                }
             }
         }
 
@@ -165,7 +154,7 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
     @objc func newPhotosCollection(){
         self.configureUI(enabled: false)
         deletePhotos(photos: fetchedResultsController.fetchedObjects!)
-        downloadPhotos()
+        getPhotosURLs()
     }
     
     func configureUI(enabled:Bool) {
@@ -175,7 +164,6 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         switch type {
         case .insert:
-            //photosCollectionView.insertItems(at: [newIndexPath!])
             break
         case .delete:
             photosCollectionView.deleteItems(at: [indexPath!])
