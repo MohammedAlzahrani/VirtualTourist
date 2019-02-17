@@ -8,7 +8,7 @@
 
 import UIKit
 import CoreData
-
+import Kingfisher
 private let reuseIdentifier = "PhotosCollectionViewCell"
 
 class PhotosCollectionViewController: UICollectionViewController, NSFetchedResultsControllerDelegate {
@@ -18,6 +18,7 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
     var dataController: DataController!
     var fetchedResultsController:NSFetchedResultsController<Photo>!
     var pin:Pin!
+    var urls:[URL] = []
     
     // MARK:- View functions
     override func viewDidLoad() {
@@ -33,6 +34,7 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(true)
         fetchedResultsController = nil
+        urls = []
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
@@ -44,21 +46,37 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
     
     // MARK:- UIcollectionView data source
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return fetchedResultsController.sections?[section].numberOfObjects ?? 12
+        if urls.isEmpty{
+            return fetchedResultsController.sections?[section].numberOfObjects ?? 0
+        }else{
+            return 12
+        }
     }
 
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! PhotosCollectionViewCell
-        print(fetchedResultsController.sections?.count)
-        if fetchedResultsController.sections?.count == 0{
-            cell.photoImageView.image = UIImage(named: "placeholder")
+//        print(fetchedResultsController.sections?.count)
+
+        if urls.isEmpty{
+            let photo = fetchedResultsController.object(at: indexPath)
+            // Configure the cell
+            if let photoData = photo.photo{
+                cell.photoImageView.image = UIImage(data: photoData)
+            }
+        }else{
+            print("strat downloading")
+            let placeHolderImage = UIImage(named:"placeholder");      cell.photoImageView.kf.setImage(with: urls[indexPath.row], placeholder: placeHolderImage){ result in
+                switch result {
+                case .success(let value):
+                    // The image was set to image view:
+                    print(value.image)
+                case .failure(let error):
+                    print(error) // The error happens
+                }
+            }
+
         }
-        else{
-        let photo = fetchedResultsController.object(at: indexPath)
-        // Configure the cell
-        if let photoData = photo.photo{
-           cell.photoImageView.image = UIImage(data: photoData)
-            }}
+        
         return cell
     }
     
@@ -117,18 +135,23 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
                 return
             }
             if urls != nil{
-                // then: download photos from URLs
-                API.sharedAPI.downloadPhotos(urls: urls!) {(images, error) in
-                    guard (error == nil) else{
-                        self.showAlert(message: error!)
-                        return
-                    }
-                    if images?.count != 0 {
-                        self.storePhotos(images: images!)
-                        if self.fetchedResultsController.sections?[0].numberOfObjects == urls!.count{
-                            DispatchQueue.main.async{self.configureUI(enabled: true)}}
-                    }
+                DispatchQueue.main.async{
+                    self.urls = urls!
+                    self.photosCollectionView.reloadData()
                 }
+                
+                // then: download photos from URLs
+//                API.sharedAPI.downloadPhotos(urls: urls!) {(images, error) in
+//                    guard (error == nil) else{
+//                        self.showAlert(message: error!)
+//                        return
+//                    }
+//                    if images?.count != 0 {
+//                        self.storePhotos(images: images!)
+//                        if self.fetchedResultsController.sections?[0].numberOfObjects == urls!.count{
+//                            DispatchQueue.main.async{self.configureUI(enabled: true)}}
+//                    }
+//                }
             }
         }
 

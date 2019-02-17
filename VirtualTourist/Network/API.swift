@@ -13,7 +13,7 @@ class API {
     static let sharedAPI = API()
     
     // return urls of photos
-    func getPhotosURLs(lat:Double, lon: Double, completion: @escaping (_ result:[String]?, _ error:String?)->Void)  {
+    func getPhotosURLs(lat:Double, lon: Double, completion: @escaping (_ result:[URL]?, _ error:String?)->Void)  {
         // constructing the url
         let latString = String(lat)
         let lonString = String(lon)
@@ -50,7 +50,8 @@ class API {
                 sendError("Could not parse the data as JSON: '\(data)'")
                 return
             }
-            var urls:[String] = []
+            
+            var urls:[URL] = []
             let photosDict = parsedResult["photos"] as! [String:AnyObject]
             /* GUARD: Was there any photos returned for that location? */
             guard (photosDict["total"] as! String != "0") else{
@@ -61,8 +62,10 @@ class API {
 
             for _ in 1...12{
                 let randomNumber = Int(arc4random_uniform(UInt32(photoArray.count)))
-                urls.append(photoArray[randomNumber]["url_m"] as! String)
+                let urlString = photoArray[randomNumber]["url_m"] as! String
+                urls.append(URL(string: urlString)!)
             }
+            
             completion(urls, nil)
         }
         task.resume()
