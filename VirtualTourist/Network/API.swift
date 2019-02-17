@@ -70,21 +70,4 @@ class API {
         }
         task.resume()
     }
-    
-    // download photos from ulrs
-    func downloadPhotos(urls:[String], completion: @escaping (_ result:[UIImage]?, _ error:String?)->Void) {
-        let downloader = ImageDownloader.default
-        for urlString in urls{
-            let url = URL(string: urlString)
-            downloader.downloadImage(with: url!) { result in
-                switch result {
-                case .success(let value):
-                    completion([value.image],nil)
-                case .failure(let error):
-                    print(error)
-                    completion(nil,error.errorDescription)
-                }
-            }
-        }
-    }
 }
