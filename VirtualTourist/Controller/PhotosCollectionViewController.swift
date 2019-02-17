@@ -65,13 +65,17 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
             }
         }else{
             print("strat downloading")
-            let placeHolderImage = UIImage(named:"placeholder");      cell.photoImageView.kf.setImage(with: urls[indexPath.row], placeholder: placeHolderImage){ result in
+            let placeHolderImage = UIImage(named:"placeholder")
+            cell.photoImageView.kf.indicatorType = .activity
+            cell.photoImageView.kf.setImage(with: urls[indexPath.row], placeholder: placeHolderImage){ result in
                 switch result {
                 case .success(let value):
-                    // The image was set to image view:
-                    print(value.image)
+                    self.storePhotos(images: [value.image])
                 case .failure(let error):
-                    print(error) // The error happens
+                    print(error.localizedDescription)
+                    DispatchQueue.main.async{
+                        self.showAlert(message: error.localizedDescription)
+                    }
                 }
             }
 
@@ -171,7 +175,7 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         switch type {
         case .insert:
-            photosCollectionView.insertItems(at: [newIndexPath!])
+            //photosCollectionView.insertItems(at: [newIndexPath!])
             break
         case .delete:
             photosCollectionView.deleteItems(at: [indexPath!])
