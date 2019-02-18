@@ -19,6 +19,7 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
     var fetchedResultsController:NSFetchedResultsController<Photo>!
     var pin:Pin!
     var urls:[URL] = []
+    var downloadCounter = 0
     
     // MARK:- View functions
     override func viewDidLoad() {
@@ -35,6 +36,7 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
         super.viewWillDisappear(true)
         fetchedResultsController = nil
         urls = []
+        downloadCounter = 0
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
@@ -49,7 +51,7 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
         if urls.isEmpty{
             return fetchedResultsController.sections?[section].numberOfObjects ?? 0
         }else{
-            return 12
+            return urls.count
         }
     }
 
@@ -64,7 +66,6 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
         }
         // download photos
         else{
-            print("strat downloading")
             let placeHolderImage = UIImage(named:"placeholder")
             cell.photoImageView.kf.indicatorType = .activity
             cell.photoImageView.kf.setImage(with: urls[indexPath.row], placeholder: placeHolderImage){ result in
@@ -72,6 +73,15 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
                 case .success(let value):
                     // store the downloaded photo in DB
                     self.storePhotos(images: [value.image])
+                    self.downloadCounter += 1
+                    // when all photos finish downloading
+                    if self.downloadCounter == self.urls.count{
+                        self.urls.removeAll()
+                        DispatchQueue.main.async{
+                            self.photosCollectionView.reloadData()
+                            self.configureUI(enabled: true)
+                        }
+                    }
                 case .failure(let error):
                     print(error.localizedDescription)
                     DispatchQueue.main.async{
