@@ -4,7 +4,7 @@ This iOS app enable users to choose a location on the map and  it will displays 
 # Screenshots
 
 
-## User experience
+## User Experience
 
 Once you lunch the app, you will be presented with a map. You can zoom the map in or out as well as move the map around. Whenever a spot of the map is longed pressed, a red bubble will appear on that spot representing a location. When you click that bubble, the app will navigates to another view. This view will display a 12 random photos that have been downloaded from Flicker for that particular location in a collection view. These photos will be stored on your device. If you tap a photo, it will be deleted from the device and disappear from the view. You can choose as many location as you like. When you navigate back to the map you and re-click the red bubble, the photos view will be shown displaying the photos that were stored on your device for that location. In this view, there is a button on the upper right called “new collection” taping on it will delete all photos from the device and remove them from the view then another 12 random photos will be downloaded and stored on your device and displayed in the view. There is no limit for number of times that you click the “new collection” button. However, that button will be disabled when the photos are downloading. It will be enable after all photos finish downloading. Moreover, when the photos start downloading, a placeholder and an activity indicator will be shown for each photo. If there are any issues, an alert message will be shown to the user. In addition, you will be notified if you choose a location on the map that doesn’t have photos on Flicker.
 
