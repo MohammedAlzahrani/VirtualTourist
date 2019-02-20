@@ -19,9 +19,9 @@ class MapViewController: UIViewController, MKMapViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        self.mapView.delegate = self
+        mapView.delegate = self
         let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(longPress))
-        self.mapView.addGestureRecognizer(longPressRecognizer)
+        mapView.addGestureRecognizer(longPressRecognizer)
         fetchPins()
 
     }

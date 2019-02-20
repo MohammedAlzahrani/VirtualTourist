@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import Kingfisher
 
 class API {
     static let sharedAPI = API()

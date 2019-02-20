@@ -41,9 +41,6 @@ class PhotosCollectionViewController: UICollectionViewController, NSFetchedResul
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         setUpFetchResultsController()
-//        if fetchedResultsController.sections?[0].numberOfObjects == 0 {
-//            downloadPhotos()
-//        }
     }
     
     // MARK:- UIcollectionView data source
