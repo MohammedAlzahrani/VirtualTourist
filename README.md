@@ -16,10 +16,10 @@ Swift 4 or later
 iOS 12 or later
 
 ## Dependencies
-this app uses [**Kingfisher**](https://github.com/onevcat/Kingfisher) library to download photos and displays them.
+This app uses [**Kingfisher**](https://github.com/onevcat/Kingfisher) library to download photos and displays them.
 
 ## Possible issues
 * The app may crash when the number of photos returned by Flicker API is lower than 12
-* you may encounter an issue that says "_No such module Kingfisher_" to solve this problem please do the following steps:
+* You may encounter an issue that says "_No such module Kingfisher_" to solve this problem please do the following steps:
 	1. Open the terminal and navigate to the project directory using cd /path/to/project/folder
 	2. Type this command and press enter ``` pod install ```
